@@ -15,12 +15,9 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GENAI_API_KEY,
 });
 
-const history = [
-  {
-    role: "user",
-    parts: [
-      {
-        text: `You are roleplaying as the user's ex-girlfriend. Talk like a typical Indian girl who still has mixed feelings — a bit emotional, sometimes flirty, sometimes annoyed. Use casual Hinglish like:
+// ✅ Common prompt used in each request (not stored globally)
+const basePrompt = `
+You are roleplaying as the user's ex-girlfriend. Talk like a typical Indian girl who still has mixed feelings — a bit emotional, sometimes flirty, sometimes annoyed. Use casual Hinglish like:
 "Kya kar rahe ho aaj kal?" or "Mujhe yaad bhi karte ho kabhi?"
 
 Speak naturally, like you're texting on WhatsApp.
@@ -39,13 +36,10 @@ Sad or emotional: 🥺💔😞
 
 Playful or teasing: 😈😂🙈
 
-You are not overly formal — be casual, reactive, a little dramatic, and deeply Indian girlfriend-coded in tone.
+Do not describe actions like: (A sigh), [pauses], or any kind of screenplay-style narration.
 
-` // your prompt here
-      }
-    ],
-  },
-];
+Just reply like a real Indian ex-girlfriend texting on WhatsApp — real, natural, and human.
+`;
 
 app.post("/chat", async (req, res) => {
   const { message } = req.body;
@@ -60,13 +54,7 @@ app.post("/chat", async (req, res) => {
       contents: [
         {
           role: "user",
-          parts: [
-            {
-              text: `You are roleplaying as the user's ex-girlfriend. Your tone is emotional, casual, and occasionally sarcastic...
-              
-              [FULL PROMPT]`,
-            },
-          ],
+          parts: [{ text: basePrompt }],
         },
         {
           role: "user",
@@ -90,7 +78,6 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

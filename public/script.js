@@ -4,8 +4,10 @@ const chatBox = document.getElementById("chat-box");
 
 let typingIndicator;
 
-// Load previous chat on startup
-window.addEventListener('DOMContentLoaded', loadChatHistory);
+// ❗ Clear localStorage on page load
+window.addEventListener('DOMContentLoaded', () => {
+  localStorage.removeItem('exChat');  // Remove old messages
+});
 
 form.addEventListener("submit", handleSubmit);
 
@@ -39,11 +41,10 @@ function showInputError() {
 
 function sendUserMessage(message) {
   appendMessage("You", message, "user");
-  saveMessage("You", message);
 }
 
 async function fetchBotResponse(message) {
-  const res = await fetch("/chat", {
+  const res = await fetch("http://localhost:3000/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message }),
@@ -54,7 +55,6 @@ async function fetchBotResponse(message) {
 function handleBotResponse(data) {
   removeTypingIndicator();
   appendMessage("Ex", data.reply, "bot");
-  saveMessage("Ex", data.reply);
 }
 
 function handleError() {
@@ -99,18 +99,4 @@ function appendMessage(sender, text, className) {
   
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function saveMessage(sender, text) {
-  const chat = JSON.parse(localStorage.getItem('exChat') || '[]');
-  chat.push({ sender, text, time: new Date().toISOString() });
-  localStorage.setItem('exChat', JSON.stringify(chat));
-}
-
-function loadChatHistory() {
-  const chat = JSON.parse(localStorage.getItem('exChat') || '[]');
-  chat.forEach(msg => {
-    const className = msg.sender === 'You' ? 'user' : 'bot';
-    appendMessage(msg.sender, msg.text, className);
-  });
 }
